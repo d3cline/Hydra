@@ -1,0 +1,353 @@
+{% extends "index.html" %}
+{% block head %}
+
+<style>
+.p {
+width: 100%;
+height: 500px;
+font-size: 14px;
+line-height: 1.2em;
+}
+</style>
+
+<script src='/media/lib/moment.min.js'></script>
+<script language="javascript" type="text/javascript" src="/media/flot/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="/media/flot/jquery.flot.time.js"></script>
+<script language="javascript" type="text/javascript" src="/media/jquery.popupoverlay.js"></script>
+
+<script type="text/javascript">
+
+
+function Reset(){
+$.ajax({
+url: 'http://{{ bot.ip }}/reset',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function Cal_EC(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ec_cal',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function EC_dry(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ec_cal_dry',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function EC_high(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ec_cal_high',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function EC_low(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ec_cal_low',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+
+
+function Cal_DO(){
+$.ajax({
+url: 'http://{{ bot.ip }}/do_cal',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function DO_atmos(){
+$.ajax({
+url: 'http://{{ bot.ip }}/do_cal_atmos',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function DO_zero(){
+$.ajax({
+url: 'http://{{ bot.ip }}/do_cal_zero',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function Cal_PH(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ph_cal',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function PH_low(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ph_cal_low',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+function PH_mid(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ph_cal_mid',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+function PH_high(){
+$.ajax({
+url: 'http://{{ bot.ip }}/ph_cal_high',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function Cal_ORP(){
+$.ajax({
+url: 'http://{{ bot.ip }}/orp_cal',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+function ORP_n(){
+$.ajax({
+url: 'http://{{ bot.ip }}/orp_cal_n',
+type: "GET",
+timeout: 20000,
+async: false,
+});
+}
+
+
+$(function() {
+
+$("#ec_div").hide();
+$("#do_div").hide();
+$("#ph_div").hide();
+$("#orp_div").hide();
+
+var data = [];
+var flot = {};
+var mode = 0;
+var label = "";
+var color = "#90a4ae";
+
+function getData() {
+
+$.ajax({
+url: 'http://{{ bot.ip }}/',
+type: "GET",
+timeout: 10000,
+dataType: "json",
+success:function(response_data_json) {
+if (data.length >= 20 ){
+data.shift();
+}
+mode = response_data_json.mode
+if (mode==0){
+label = "RSSI";
+data.push([moment.utc().unix(), response_data_json.rssi]);
+color = "#000";
+$('#x').text(response_data_json.rssi); 
+$('#y').text('RSSI'); 
+
+
+$("#ec_div").hide();
+$("#do_div").hide();
+$("#ph_div").hide();
+$("#orp_div").hide();
+
+}
+if(mode==1){
+label = "EC";
+data.push([moment.utc().unix(), response_data_json.data.ec]);
+color = "#0DFF5A";
+$('#x').text(response_data_json.data.ec); 
+$('#y').text('EC'); 
+$("#ec_div").show();
+$("#do_div").hide();
+$("#ph_div").hide();
+$("#orp_div").hide();
+}
+if(mode==2){
+label = "DO";
+data.push([moment.utc().unix(), response_data_json.data.do]);
+color = "#E80098";
+$('#x').text(response_data_json.data.do); 
+$('#y').text('DO'); 
+$("#ec_div").hide();
+$("#do_div").show();
+$("#ph_div").hide();
+$("#orp_div").hide();
+}
+if(mode==3){
+label = "PH";
+data.push([moment.utc().unix(), response_data_json.data.ph]);
+color = "#0008FF";
+$('#x').text(response_data_json.data.ph); 
+$('#y').text('PH'); 
+$("#ec_div").hide();
+$("#do_div").hide();
+$("#ph_div").show();
+$("#orp_div").hide();
+}
+if(mode==4){
+label = "ORP";
+data.push([moment.utc().unix(), response_data_json.data.orp]);
+color = "#FFFF05";
+$('#x').text(response_data_json.data.orp); 
+$('#y').text('ORP'); 
+$("#ec_div").hide();
+$("#do_div").hide();
+$("#ph_div").hide();
+$("#orp_div").show();
+}
+},
+});
+
+flot = {l:data};
+console.log(flot);
+
+//{"data":{"l":[[1529769319000, -991.2], [1529769624000, -991.0], [1529770176000, -870.7], [1529770482000, -909.9], [1529770788000, -939.6], [1529771094000, -963.1], [1529771400000, -979.9], [1529771706000, -987.7], [1529772012000, -990.2], [1529772318000, -990.0], [1529772624000, -990.4], [1529772930000, -991.4], [1529773235000, -990.0], [1529773842000, -990.0], [1529774148000, -990.5], [1529774453000, -990.2], [1529774760000, -988.2], [1529775065000, -993.6], [1529775371000, -992.5], [1529776139000, -937.4], [1529776721000, -983.5], [1529777026000, -991.4], [1529777332000, -993.3], [1529777638000, -994.0], [1529777944000, -992.9], [1529778861000, -992.2], [1529779263000, -992.6], [1529779742000, -992.7], [1529780048000, -991.0], [1529780354000, -987.4], [1529780660000, -992.4], [1529780966000, -991.5], [1529781272000, -992.0], [1529781578000, -992.3], [1529781885000, -992.1], [1529782360000, -929.4], [1529783344000, -992.1], [1529783647000, -992.0], [1529783954000, -993.6], [1529784260000, -993.4], [1529784787000, -994.5], [1529785093000, -992.1], [1529785400000, -992.0], [1529785707000, -992.4], [1529786014000, -992.2], [1529786321000, -992.2], [1529786627000, -992.0], [1529786934000, -991.5], [1529787240000, -991.9], [1529787547000, -991.6], [1529787853000, -991.1], [1529788160000, -990.6], [1529788467000, -991.0], [1529788773000, -990.6], [1529789080000, -991.2], [1529789386000, -990.7], [1529789693000, -990.7], [1529790000000, -990.9], [1529790307000, -990.1], [1529790613000, -990.1], [1529790920000, -989.9], [1529791227000, -989.7], [1529791535000, -989.7], [1529791842000, -989.7], [1529792149000, -989.7], [1529792455000, -989.6], [1529792762000, -989.1], [1529793069000, -988.0], [1529793375000, -989.3], [1529793681000, -990.2], [1529793987000, -990.0], [1529794294000, -990.2], [1529794600000, -990.1], [1529794906000, -990.2], [1529795212000, -990.4], [1529795518000, -990.2], [1529795824000, -990.3], [1529796131000, -990.2], [1529796437000, -992.0], [1529796743000, -991.7], [1529797044000, -990.6], [1529797351000, -991.7], [1529797658000, -990.3], [1529797964000, -990.2], [1529798271000, -990.4], [1529798577000, -992.1], [1529798884000, -989.9], [1529804382000, -997.4], [1529804687000, -992.0], [1529805876000, -991.5], [1529806182000, -991.7], [1529806489000, -990.7], [1529806795000, -990.3], [1529807102000, -992.2], [1529807408000, -992.0], [1529807715000, -991.0], [1529808022000, -992.0], [1529808328000, -991.4], [1529808634000, -990.7], [1529810803000, -993.6], [1529811108000, -992.5], [1529811413000, -994.0], [1529811718000, -993.6], [1529812023000, -992.2], [1529812328000, -992.2], [1529812633000, -992.0], [1529812938000, -991.9], [1529813243000, -993.4], [1529813547000, -993.3], [1529813853000, -992.4], [1529814158000, -992.7], [1529814462000, -992.4], [1529814767000, -991.8], [1529815072000, -992.3], [1529815377000, -994.3], [1529815682000, -989.7], [1529815986000, -993.7], [1529816291000, -993.8], [1529816986000, -992.2], [1529817291000, -992.0], [1529817598000, -993.2], [1529817902000, -993.7], [1529818207000, -992.1], [1529818511000, -993.7], [1529818815000, -993.2], [1529819120000, -992.0], [1529819424000, -991.9], [1529819729000, -992.2]]}}
+return flot;
+}
+
+
+function update() {
+
+
+
+stats = getData();
+var plot3 = $.plot("#p3", [{ data:stats.l, label:label, lines: { show: true, fill: false, fillColor: "#FF0" }, points:{show:true}, color:color}], {
+series: {
+shadowSize: 0
+},
+});
+
+if (mode==0){
+setTimeout(update, 5000);
+}
+else{
+setTimeout(update, 500);
+}
+
+}
+update();
+});
+
+$.ajaxSetup({
+beforeSend:function(){
+// show gif here, eg:
+$("#loading").show();
+},
+complete:function(){
+// hide gif here, eg:
+$("#loading").hide();
+}
+});
+
+$( document ).ajaxError(function( event, request, settings ) {
+$("#error").show();
+//console.log(request);
+});
+$( document ).ajaxSuccess(function( event, request, settings ) {
+
+$("#error").hide();
+});
+</script>
+
+
+{% endblock %}
+{% block body %}
+<div class="container-fluid">
+	<span style="color:red" id="error">Attempting to communicate.</span>
+
+    <h1 class="page-header">Calibrate {{ bot.name }}</h1>
+    <div class="row">
+        <div class="col-lg-3">
+
+
+
+<button type="button" id="ec_cal_btn" class="btn btn-primary btn-lg btn-block" onclick="Cal_EC()">Calibrate EC</button>
+<button type="button" id="do_cal_btn" class="btn btn-primary btn-lg btn-block" onclick="Cal_DO()">Calibrate DO</button>
+<button type="button" id="ph_cal_btn" class="btn btn-primary btn-lg btn-block" onclick="Cal_PH()">Calibrate PH</button>
+<button type="button" id="orp_cal_btn" class="btn btn-primary btn-lg btn-block" onclick="Cal_ORP()">Calibrate ORP</button>
+<button type="button" id="orp_cal_btn" class="btn btn-danger btn-lg btn-block" onclick="Reset()">Reset</button>
+
+
+
+        </div>
+        <div class="col-lg-9">
+
+
+<div id="p3" class="p" ></div>
+
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-info-circle fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div id="x" class="huge">0</div>
+                                    <div id="y">RSSI</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+<div id="ec_div">
+<button type="button" id="ec_cal_dry" class="btn btn-primary btn-lg btn-block" onclick="EC_dry()">Send EC Dry</button>
+<button type="button" id="ec_cal_high" class="btn btn-primary btn-lg btn-block" onclick="EC_high()">Send EC High</button>
+<button type="button" id="ec_cal_low" class="btn btn-primary btn-lg btn-block" onclick="EC_low()">Send EC Low</button>
+</div>
+
+<div id="do_div">
+<button type="button" id="do_cal_atmos" class="btn btn-primary btn-lg btn-block" onclick="DO_atmos()">Send DO Atmosphere</button>
+<button type="button" id="do_cal_zero" class="btn btn-primary btn-lg btn-block" onclick="DO_zero()">Send DO Zero</button>
+</div>
+
+<div id="ph_div">
+<button type="button" id="ph_cal_low" class="btn btn-primary btn-lg btn-block" onclick="PH_low()">Send PH Low (4.00)</button>
+<button type="button" id="ph_cal_mid" class="btn btn-primary btn-lg btn-block" onclick="PH_mid()">Send PH Mid (7.00)</button>
+<button type="button" id="ph_cal_high" class="btn btn-primary btn-lg btn-block" onclick="PH_high()">Send PH High (10.00)</button>
+</div>
+
+<div id="orp_div">
+<button type="button" id="orp_cal_n" class="btn btn-primary btn-lg btn-block" onclick="ORP_n()">Send ORP 255</button>
+</div>
+
+        </div>
+    </div>
+</div>
+
+
+    {% endblock %}
